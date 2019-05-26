@@ -5,3 +5,4 @@ authors = ["Andrey Kutejko <andy128k@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+termion = "1"
