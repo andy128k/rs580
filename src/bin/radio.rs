@@ -4,6 +4,7 @@ use termion::raw::IntoRawMode;
 use termion::raw::RawTerminal;
 use termion::input::TermRead;
 use termion::event::Key;
+use termion::screen::AlternateScreen;
 use std::io::{Write, stdout, Stdout};
 use std::sync::Arc;
 use std::cell::{RefCell, Cell};
@@ -17,7 +18,7 @@ struct RKDisplay {
     cursor_y: u8,
     last_print: time::Instant,
     dirty: bool,
-    stdout: RawTerminal<Stdout>,
+    stdout: AlternateScreen<RawTerminal<Stdout>>,
     indicators: u8,
 }
 
@@ -25,6 +26,7 @@ impl RKDisplay {
     pub fn new() -> Result<Self, std::io::Error> {
         // Enter raw mode.
         let stdout = stdout().into_raw_mode()?;
+        let stdout = AlternateScreen::from(stdout);
         Ok(Self {
             data: [0; 78 * 30],
             cursor_x: 0,
