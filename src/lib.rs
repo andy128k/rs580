@@ -157,7 +157,7 @@ impl Machine {
             add16(&mut self.registers.pc, 1);
         } else if let Some(rp) = ops!(opcode, ('0', '0', 'X', 'X', '0', '0', '0', '1')) {
             // LXI
-            let data16 = self.memory.get_u16(self.registers.pc + 1);
+            let data16 = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
             self.set_pair(rp, data16);
             add16(&mut self.registers.pc, 3);
         } else if let Some(r) = ops!(opcode, ('0', '0', '0', 'X', '0', '0', '1', '0')) {
@@ -167,13 +167,13 @@ impl Machine {
             add16(&mut self.registers.pc, 1);
         } else if opcode == 0b_0010_0010 {
             // SHLD
-            let addr = self.memory.get_u16(self.registers.pc + 1);
+            let addr = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
             self.memory.set_u8(addr, self.registers.l);
             self.memory.set_u8(addr + 1, self.registers.h);
             add16(&mut self.registers.pc, 3);
         } else if opcode == 0b_0011_0010 {
             // STA
-            let addr = self.memory.get_u16(self.registers.pc + 1);
+            let addr = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
             self.memory.set_u8(addr, self.registers.a);
             add16(&mut self.registers.pc, 3);
         } else if let Some(rp) = ops!(opcode, ('0', '0', 'X', 'X', '0', '0', '1', '1')) {
@@ -198,9 +198,9 @@ impl Machine {
             add16(&mut self.registers.pc, 1);
         } else if let Some(reg) = ops!(opcode, ('0', '0', 'X', 'X', 'X', '1', '1', '0')) {
             // MVI
-            let data = self.memory.get_u8(self.registers.pc + 1);
+            let data = self.memory.get_u8(self.registers.pc.overflowing_add(1).0);
             self.set_location(reg, data);
-            self.registers.pc += 2;
+            self.registers.pc = self.registers.pc.overflowing_add(2).0;
         } else if opcode == 0b_0000_0111 {
             // RLC
             self.registers.flag_c = (self.registers.a & 0x80) != 0;
@@ -245,19 +245,19 @@ impl Machine {
             add16(&mut self.registers.pc, 1);
         } else if opcode == 0b_0010_1010 {
             // LHLD
-            let addr = self.memory.get_u16(self.registers.pc + 1);
+            let addr = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
             let (l, h) = self.memory.get_u8_u8(addr);
             self.registers.l = l;
             self.registers.h = h;
             add16(&mut self.registers.pc, 3);
         } else if opcode == 0b_0011_1010 {
             // LDA
-            let addr = self.memory.get_u16(self.registers.pc + 1);
+            let addr = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
             self.registers.a = self.memory.get_u8(addr);
             add16(&mut self.registers.pc, 3);
         } else if let Some(rp) = ops!(opcode, ('0', '0', 'X', 'X', '1', '0', '1', '1')) {
             // DCX
-            self.set_pair(rp, self.get_pair(rp) - 1);
+            self.set_pair(rp, self.get_pair(rp).overflowing_sub(1).0);
             add16(&mut self.registers.pc, 1);
         } else if opcode == 0x27 {
             // DAA
@@ -332,14 +332,14 @@ impl Machine {
             // conditional return
             if self.check_cond(cond) {
                 self.registers.pc = self.memory.get_u16(self.registers.sp);
-                self.registers.sp += 2;
+                self.registers.sp = self.registers.sp.overflowing_add(2).0;
             } else {
                 add16(&mut self.registers.pc, 1);
             }
         } else if let Some(cond) = ops!(opcode, ('1', '1', 'X', 'X', 'X', '0', '1', '0')) {
             // conditional jump
             if self.check_cond(cond) {
-                self.registers.pc = self.memory.get_u16(self.registers.pc + 1);
+                self.registers.pc = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
             } else {
                 add16(&mut self.registers.pc, 3);
             }
@@ -347,8 +347,8 @@ impl Machine {
             // conditional call
             if self.check_cond(cond) {
                 sub16(&mut self.registers.sp, 2);
-                self.memory.set_u16(self.registers.sp, self.registers.pc + 3);
-                self.registers.pc = self.memory.get_u16(self.registers.pc + 1);
+                self.memory.set_u16(self.registers.sp, self.registers.pc.overflowing_add(3).0);
+                self.registers.pc = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
             } else {
                 add16(&mut self.registers.pc, 3);
             }
@@ -366,7 +366,7 @@ impl Machine {
             add16(&mut self.registers.pc, 1);
         } else if opcode == 0xC3 {
             // JMP
-            self.registers.pc = self.memory.get_u16(self.registers.pc + 1);
+            self.registers.pc = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
         } else if opcode == 0xC9 {
             // RET
             self.registers.pc = self.memory.get_u16(self.registers.sp);
@@ -374,11 +374,11 @@ impl Machine {
         } else if opcode == 0xCD {
             // CALL
             sub16(&mut self.registers.sp, 2);
-            self.memory.set_u16(self.registers.sp, self.registers.pc + 3);
-            self.registers.pc = self.memory.get_u16(self.registers.pc + 1);
+            self.memory.set_u16(self.registers.sp, self.registers.pc.overflowing_add(3).0);
+            self.registers.pc = self.memory.get_u16(self.registers.pc.overflowing_add(1).0);
         } else if let Some(operation) = ops!(opcode, ('1', '1', 'X', 'X', 'X', '1', '1', '0')) {
             // arithmetic
-            let operand = self.memory.get_u8(self.registers.pc + 1);
+            let operand = self.memory.get_u8(self.registers.pc.overflowing_add(1).0);
             match operation {
                 0 => self.add(operand, false),
                 1 => self.add(operand, self.registers.flag_c),
@@ -407,20 +407,20 @@ impl Machine {
                 },
                 _ => unreachable!()
             }
-            self.registers.pc += 2;
+            self.registers.pc = self.registers.pc.overflowing_add(2).0;
         } else if let Some(exp) = ops!(opcode, ('1', '1', 'X', 'X', 'X', '1', '1', '1')) {
             // RST
             sub16(&mut self.registers.sp, 2);
-            self.memory.set_u16(self.registers.sp, self.registers.pc + 1);
+            self.memory.set_u16(self.registers.sp, self.registers.pc.overflowing_add(1).0);
             self.registers.pc = (exp as u16) << 3;
         } else if opcode == 0xD3 {
             // OUT
-            let port = self.memory.get_u8(self.registers.pc + 1);
+            let port = self.memory.get_u8(self.registers.pc.overflowing_add(1).0);
             self.out(port, self.registers.a);
             add16(&mut self.registers.pc, 2);
         } else if opcode == 0xDB {
             // IN
-            let port = self.memory.get_u8(self.registers.pc + 1);
+            let port = self.memory.get_u8(self.registers.pc.overflowing_add(1).0);
             self.registers.a = self.inp(port);
             add16(&mut self.registers.pc, 2);
         } else if opcode == 0xE3 {
@@ -470,10 +470,11 @@ impl Machine {
     }
 
     fn sub(&mut self, operand: u8, carry: bool) {
-        let (o, a) = to_pair((self.registers.a as u16) + (neg(operand + if carry { 1 } else { 0 }) as u16));
+        let operand = operand.overflowing_add(if carry { 1 } else { 0 }).0;
+        let (o, a) = to_pair((self.registers.a as u16) + (neg(operand) as u16));
         self.registers.a = a;
         self.registers.flag_c = o <= 0;
-        self.registers.flag_ac = (self.registers.a & 0x0F) + (neg(operand + if carry { 1 } else { 0 }) & 0x0F) <= 0x0F;
+        self.registers.flag_ac = (self.registers.a & 0x0F) + (neg(operand) & 0x0F) <= 0x0F;
         self.set_a_flags();
     }
 
@@ -613,9 +614,12 @@ mod tests {
                 0x08 | 0x10 | 0x18 | 0x20 | 0x28 | 0x30 | 0x38 | 0xCB | 0xD9 | 0xDD | 0xED | 0xFD => continue,
                 _ => {}
             }
-            m.memory.set_u8(0, i);
-            m.reset();
-            m.step();
+            for a in &[0xFFFC, 0xFFFD, 0xFFFE, 0xFFFF, 0x0000, 0x0001, 0x0002, 0x0003] {
+                println!("Try instruction {:02x} at {:04x}.", i, a);
+                m.memory.set_u8(*a, i);
+                m.registers.pc = *a;
+                m.step();
+            }
         }
     }
 
