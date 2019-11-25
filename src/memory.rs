@@ -1,8 +1,6 @@
 pub trait Memory {
-    #[inline]
     fn get_u8(&self, addr: u16) -> u8;
 
-    #[inline]
     fn set_u8(&mut self, addr: u16, value: u8);
 
     fn get_range(&self, mut from: u16, to: u16) -> Vec<u8> {

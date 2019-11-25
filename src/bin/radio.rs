@@ -1,4 +1,5 @@
 use std::{thread, time};
+use std::convert::TryFrom;
 use termion::{clear, cursor, async_stdin};
 use termion::raw::IntoRawMode;
 use termion::raw::RawTerminal;
@@ -125,6 +126,92 @@ struct RKKey {
     pub c: u8,
 }
 
+impl TryFrom<Key> for RKKey {
+    type Error = ();
+
+    fn try_from(key: Key) -> Result<Self, ()> {
+        match key {
+            Key::Char('x')  => Ok(RKKey { a: 0b_0111_1111, b: 0b_1111_1110, c: 0 }),
+            Key::Char('p')  => Ok(RKKey { a: 0b_1011_1111, b: 0b_1111_1110, c: 0 }),
+            Key::Char('h')  => Ok(RKKey { a: 0b_1101_1111, b: 0b_1111_1110, c: 0 }),
+            Key::Char('@')  => Ok(RKKey { a: 0b_1110_1111, b: 0b_1111_1110, c: 0 }),
+            Key::Char('8')  => Ok(RKKey { a: 0b_1111_0111, b: 0b_1111_1110, c: 0 }),
+            Key::Char('0')  => Ok(RKKey { a: 0b_1111_1011, b: 0b_1111_1110, c: 0 }),
+            Key::Char('\t') => Ok(RKKey { a: 0b_1111_1101, b: 0b_1111_1110, c: 0 }),
+            Key::Home       => Ok(RKKey { a: 0b_1111_1110, b: 0b_1111_1110, c: 0 }),
+
+            Key::Char('y')  => Ok(RKKey { a: 0b_0111_1111, b: 0b_1111_1101, c: 0 }),
+            Key::Char('q')  => Ok(RKKey { a: 0b_1011_1111, b: 0b_1111_1101, c: 0 }),
+            Key::Char('i')  => Ok(RKKey { a: 0b_1101_1111, b: 0b_1111_1101, c: 0 }),
+            Key::Char('a')  => Ok(RKKey { a: 0b_1110_1111, b: 0b_1111_1101, c: 0 }),
+            Key::Char('9')  => Ok(RKKey { a: 0b_1111_0111, b: 0b_1111_1101, c: 0 }),
+            Key::Char('1')  => Ok(RKKey { a: 0b_1111_1011, b: 0b_1111_1101, c: 0 }),
+            Key::Char('\r') => Ok(RKKey { a: 0b_1111_1101, b: 0b_1111_1101, c: 0 }), // ПС
+            // Key::???     => Ok(RKKey { a: 0b_1111_1110, b: 0b_1111_1101, c: 0 }), // СТР
+
+            Key::Char('z')  => Ok(RKKey { a: 0b_0111_1111, b: 0b_1111_1011, c: 0 }),
+            Key::Char('r')  => Ok(RKKey { a: 0b_1011_1111, b: 0b_1111_1011, c: 0 }),
+            Key::Char('j')  => Ok(RKKey { a: 0b_1101_1111, b: 0b_1111_1011, c: 0 }),
+            Key::Char('b')  => Ok(RKKey { a: 0b_1110_1111, b: 0b_1111_1011, c: 0 }),
+            Key::Char(':')  => Ok(RKKey { a: 0b_1111_0111, b: 0b_1111_1011, c: 0 }),
+            Key::Char('2')  => Ok(RKKey { a: 0b_1111_1011, b: 0b_1111_1011, c: 0 }),
+            Key::Char('\n') => Ok(RKKey { a: 0b_1111_1101, b: 0b_1111_1011, c: 0 }), // ВК
+            // Key::???     => Ok(RKKey { a: 0b_1111_1110, b: 0b_1111_1011, c: 0 }), // АР2
+
+            Key::Char('[')  => Ok(RKKey { a: 0b_0111_1111, b: 0b_1111_0111, c: 0 }),
+            Key::Char('s')  => Ok(RKKey { a: 0b_1011_1111, b: 0b_1111_0111, c: 0 }),
+            Key::Char('k')  => Ok(RKKey { a: 0b_1101_1111, b: 0b_1111_0111, c: 0 }),
+            Key::Char('c')  => Ok(RKKey { a: 0b_1110_1111, b: 0b_1111_0111, c: 0 }),
+            Key::Char(';')  => Ok(RKKey { a: 0b_1111_0111, b: 0b_1111_0111, c: 0 }),
+            Key::Char('3')  => Ok(RKKey { a: 0b_1111_1011, b: 0b_1111_0111, c: 0 }),
+            Key::Backspace  => Ok(RKKey { a: 0b_1111_1101, b: 0b_1111_0111, c: 0 }),
+            Key::F(1)       => Ok(RKKey { a: 0b_1111_1110, b: 0b_1111_0111, c: 0 }),
+
+            Key::Char('\\') => Ok(RKKey { a: 0b_0111_1111, b: 0b_1110_1111, c: 0 }),
+            Key::Char('t')  => Ok(RKKey { a: 0b_1011_1111, b: 0b_1110_1111, c: 0 }),
+            Key::Char('l')  => Ok(RKKey { a: 0b_1101_1111, b: 0b_1110_1111, c: 0 }),
+            Key::Char('d')  => Ok(RKKey { a: 0b_1110_1111, b: 0b_1110_1111, c: 0 }),
+            Key::Char('<')  => Ok(RKKey { a: 0b_1111_0111, b: 0b_1110_1111, c: 0 }),
+            Key::Char('4')  => Ok(RKKey { a: 0b_1111_1011, b: 0b_1110_1111, c: 0 }),
+            Key::Left       => Ok(RKKey { a: 0b_1111_1101, b: 0b_1110_1111, c: 0 }),
+            Key::F(2)       => Ok(RKKey { a: 0b_1111_1110, b: 0b_1110_1111, c: 0 }),
+
+            Key::Char(']')  => Ok(RKKey { a: 0b_0111_1111, b: 0b_1101_1111, c: 0 }),
+            Key::Char('u')  => Ok(RKKey { a: 0b_1011_1111, b: 0b_1101_1111, c: 0 }),
+            Key::Char('m')  => Ok(RKKey { a: 0b_1101_1111, b: 0b_1101_1111, c: 0 }),
+            Key::Char('e')  => Ok(RKKey { a: 0b_1110_1111, b: 0b_1101_1111, c: 0 }),
+            Key::Char('-')  => Ok(RKKey { a: 0b_1111_0111, b: 0b_1101_1111, c: 0 }),
+            Key::Char('5')  => Ok(RKKey { a: 0b_1111_1011, b: 0b_1101_1111, c: 0 }),
+            Key::Up         => Ok(RKKey { a: 0b_1111_1101, b: 0b_1101_1111, c: 0 }),
+            Key::F(3)       => Ok(RKKey { a: 0b_1111_1110, b: 0b_1101_1111, c: 0 }),
+
+            Key::Char('^')  => Ok(RKKey { a: 0b_0111_1111, b: 0b_1011_1111, c: 0 }),
+            Key::Char('v')  => Ok(RKKey { a: 0b_1011_1111, b: 0b_1011_1111, c: 0 }),
+            Key::Char('n')  => Ok(RKKey { a: 0b_1101_1111, b: 0b_1011_1111, c: 0 }),
+            Key::Char('f')  => Ok(RKKey { a: 0b_1110_1111, b: 0b_1011_1111, c: 0 }),
+            Key::Char('>')  => Ok(RKKey { a: 0b_1111_0111, b: 0b_1011_1111, c: 0 }),
+            Key::Char('6')  => Ok(RKKey { a: 0b_1111_1011, b: 0b_1011_1111, c: 0 }),
+            Key::Right      => Ok(RKKey { a: 0b_1111_1101, b: 0b_1011_1111, c: 0 }),
+            Key::F(4)       => Ok(RKKey { a: 0b_1111_1110, b: 0b_1011_1111, c: 0 }),
+
+            Key::Char(' ')  => Ok(RKKey { a: 0b_0111_1111, b: 0b_0111_1111, c: 0 }),
+            Key::Char('w')  => Ok(RKKey { a: 0b_1011_1111, b: 0b_0111_1111, c: 0 }),
+            Key::Char('o')  => Ok(RKKey { a: 0b_1101_1111, b: 0b_0111_1111, c: 0 }),
+            Key::Char('g')  => Ok(RKKey { a: 0b_1110_1111, b: 0b_0111_1111, c: 0 }),
+            Key::Char('/')  => Ok(RKKey { a: 0b_1111_0111, b: 0b_0111_1111, c: 0 }),
+            Key::Char('7')  => Ok(RKKey { a: 0b_1111_1011, b: 0b_0111_1111, c: 0 }),
+            Key::Down       => Ok(RKKey { a: 0b_1111_1101, b: 0b_0111_1111, c: 0 }),
+            // ?            => Ok(RKKey { a: 0b_1111_1110, b: 0b_0111_1111, c: 0 }),
+
+            Key::Ctrl('a')  => Ok(RKKey { a: 0, b: 0, c: 0b_0110_0000 }), // РУС/ЛАТ
+            Key::Ctrl('u')  => Ok(RKKey { a: 0, b: 0, c: 0b_1100_0000 }), // УС
+            Key::Ctrl('s')  => Ok(RKKey { a: 0, b: 0, c: 0b_1100_0000 }), // СС
+
+            _ => Err(()),
+        }
+    }
+}
+
 struct RKKeyboardInternal {
     key_stream: RefCell<termion::input::Keys<termion::AsyncReader>>,
     current_key: Cell<(RKKey, time::Instant)>,
@@ -155,90 +242,11 @@ impl RKKeyboard {
     pub fn process_key(&self) -> bool {
         let b = self.0.key_stream.borrow_mut().next();
         if let Some(Ok(k)) = b {
-            let key = match k {
-                Key::Ctrl('c')  => return true, // Ctrl-C
-
-                Key::Char('x')  => Some(RKKey { a: 0b_0111_1111, b: 0b_1111_1110, c: 0 }),
-                Key::Char('p')  => Some(RKKey { a: 0b_1011_1111, b: 0b_1111_1110, c: 0 }),
-                Key::Char('h')  => Some(RKKey { a: 0b_1101_1111, b: 0b_1111_1110, c: 0 }),
-                Key::Char('@')  => Some(RKKey { a: 0b_1110_1111, b: 0b_1111_1110, c: 0 }),
-                Key::Char('8')  => Some(RKKey { a: 0b_1111_0111, b: 0b_1111_1110, c: 0 }),
-                Key::Char('0')  => Some(RKKey { a: 0b_1111_1011, b: 0b_1111_1110, c: 0 }),
-                Key::Char('\t') => Some(RKKey { a: 0b_1111_1101, b: 0b_1111_1110, c: 0 }),
-                Key::Home       => Some(RKKey { a: 0b_1111_1110, b: 0b_1111_1110, c: 0 }),
-
-                Key::Char('y')  => Some(RKKey { a: 0b_0111_1111, b: 0b_1111_1101, c: 0 }),
-                Key::Char('q')  => Some(RKKey { a: 0b_1011_1111, b: 0b_1111_1101, c: 0 }),
-                Key::Char('i')  => Some(RKKey { a: 0b_1101_1111, b: 0b_1111_1101, c: 0 }),
-                Key::Char('a')  => Some(RKKey { a: 0b_1110_1111, b: 0b_1111_1101, c: 0 }),
-                Key::Char('9')  => Some(RKKey { a: 0b_1111_0111, b: 0b_1111_1101, c: 0 }),
-                Key::Char('1')  => Some(RKKey { a: 0b_1111_1011, b: 0b_1111_1101, c: 0 }),
-                Key::Char('\r') => Some(RKKey { a: 0b_1111_1101, b: 0b_1111_1101, c: 0 }), // ПС
-                // Key::Home       => Some(RKKey { a: 0b_1111_1110, b: 0b_1111_1101, c: 0 }), // СТР
-
-                Key::Char('z')  => Some(RKKey { a: 0b_0111_1111, b: 0b_1111_1011, c: 0 }),
-                Key::Char('r')  => Some(RKKey { a: 0b_1011_1111, b: 0b_1111_1011, c: 0 }),
-                Key::Char('j')  => Some(RKKey { a: 0b_1101_1111, b: 0b_1111_1011, c: 0 }),
-                Key::Char('b')  => Some(RKKey { a: 0b_1110_1111, b: 0b_1111_1011, c: 0 }),
-                Key::Char(':')  => Some(RKKey { a: 0b_1111_0111, b: 0b_1111_1011, c: 0 }),
-                Key::Char('2')  => Some(RKKey { a: 0b_1111_1011, b: 0b_1111_1011, c: 0 }),
-                Key::Char('\n') => Some(RKKey { a: 0b_1111_1101, b: 0b_1111_1011, c: 0 }), // ВК
-                // Key::Char() => Some(RKKey { a: 0b_1111_1110, b: 0b_1111_1011, c: 0 }), // АР2
-
-                Key::Char('[')  => Some(RKKey { a: 0b_0111_1111, b: 0b_1111_0111, c: 0 }),
-                Key::Char('s')  => Some(RKKey { a: 0b_1011_1111, b: 0b_1111_0111, c: 0 }),
-                Key::Char('k')  => Some(RKKey { a: 0b_1101_1111, b: 0b_1111_0111, c: 0 }),
-                Key::Char('c')  => Some(RKKey { a: 0b_1110_1111, b: 0b_1111_0111, c: 0 }),
-                Key::Char(';')  => Some(RKKey { a: 0b_1111_0111, b: 0b_1111_0111, c: 0 }),
-                Key::Char('3')  => Some(RKKey { a: 0b_1111_1011, b: 0b_1111_0111, c: 0 }),
-                Key::Backspace  => Some(RKKey { a: 0b_1111_1101, b: 0b_1111_0111, c: 0 }),
-                Key::F(1)       => Some(RKKey { a: 0b_1111_1110, b: 0b_1111_0111, c: 0 }),
-
-                Key::Char('\\') => Some(RKKey { a: 0b_0111_1111, b: 0b_1110_1111, c: 0 }),
-                Key::Char('t')  => Some(RKKey { a: 0b_1011_1111, b: 0b_1110_1111, c: 0 }),
-                Key::Char('l')  => Some(RKKey { a: 0b_1101_1111, b: 0b_1110_1111, c: 0 }),
-                Key::Char('d')  => Some(RKKey { a: 0b_1110_1111, b: 0b_1110_1111, c: 0 }),
-                Key::Char('<')  => Some(RKKey { a: 0b_1111_0111, b: 0b_1110_1111, c: 0 }),
-                Key::Char('4')  => Some(RKKey { a: 0b_1111_1011, b: 0b_1110_1111, c: 0 }),
-                Key::Left       => Some(RKKey { a: 0b_1111_1101, b: 0b_1110_1111, c: 0 }),
-                Key::F(2)       => Some(RKKey { a: 0b_1111_1110, b: 0b_1110_1111, c: 0 }),
-
-                Key::Char(']')  => Some(RKKey { a: 0b_0111_1111, b: 0b_1101_1111, c: 0 }),
-                Key::Char('u')  => Some(RKKey { a: 0b_1011_1111, b: 0b_1101_1111, c: 0 }),
-                Key::Char('m')  => Some(RKKey { a: 0b_1101_1111, b: 0b_1101_1111, c: 0 }),
-                Key::Char('e')  => Some(RKKey { a: 0b_1110_1111, b: 0b_1101_1111, c: 0 }),
-                Key::Char('-')  => Some(RKKey { a: 0b_1111_0111, b: 0b_1101_1111, c: 0 }),
-                Key::Char('5')  => Some(RKKey { a: 0b_1111_1011, b: 0b_1101_1111, c: 0 }),
-                Key::Up         => Some(RKKey { a: 0b_1111_1101, b: 0b_1101_1111, c: 0 }),
-                Key::F(3)       => Some(RKKey { a: 0b_1111_1110, b: 0b_1101_1111, c: 0 }),
-
-                Key::Char('^')  => Some(RKKey { a: 0b_0111_1111, b: 0b_1011_1111, c: 0 }),
-                Key::Char('v')  => Some(RKKey { a: 0b_1011_1111, b: 0b_1011_1111, c: 0 }),
-                Key::Char('n')  => Some(RKKey { a: 0b_1101_1111, b: 0b_1011_1111, c: 0 }),
-                Key::Char('f')  => Some(RKKey { a: 0b_1110_1111, b: 0b_1011_1111, c: 0 }),
-                Key::Char('>')  => Some(RKKey { a: 0b_1111_0111, b: 0b_1011_1111, c: 0 }),
-                Key::Char('6')  => Some(RKKey { a: 0b_1111_1011, b: 0b_1011_1111, c: 0 }),
-                Key::Right      => Some(RKKey { a: 0b_1111_1101, b: 0b_1011_1111, c: 0 }),
-                Key::F(4)       => Some(RKKey { a: 0b_1111_1110, b: 0b_1011_1111, c: 0 }),
-
-                Key::Char(' ')  => Some(RKKey { a: 0b_0111_1111, b: 0b_0111_1111, c: 0 }),
-                Key::Char('w')  => Some(RKKey { a: 0b_1011_1111, b: 0b_0111_1111, c: 0 }),
-                Key::Char('o')  => Some(RKKey { a: 0b_1101_1111, b: 0b_0111_1111, c: 0 }),
-                Key::Char('g')  => Some(RKKey { a: 0b_1110_1111, b: 0b_0111_1111, c: 0 }),
-                Key::Char('/')  => Some(RKKey { a: 0b_1111_0111, b: 0b_0111_1111, c: 0 }),
-                Key::Char('7')  => Some(RKKey { a: 0b_1111_1011, b: 0b_0111_1111, c: 0 }),
-                Key::Down       => Some(RKKey { a: 0b_1111_1101, b: 0b_0111_1111, c: 0 }),
-                // ?            => Some(RKKey { a: 0b_1111_1110, b: 0b_0111_1111, c: 0 }),
-
-                Key::Ctrl('a')  => Some(RKKey { a: 0, b: 0, c: 0b_0110_0000 }), // РУС/ЛАТ
-                Key::Ctrl('u')  => Some(RKKey { a: 0, b: 0, c: 0b_1100_0000 }), // УС
-                Key::Ctrl('s')  => Some(RKKey { a: 0, b: 0, c: 0b_1100_0000 }), // СС
-
-                _ => None,
-            };
-            match key {
-                Some(key) => self.0.current_key.set((key, time::Instant::now())),
-                _ => {},
+            if k == Key::Ctrl('c') || k == Key::Ctrl('q') {
+                return true;
+            }
+            if let Ok(key) = RKKey::try_from(k) {
+                self.0.current_key.set((key, time::Instant::now()));
             }
         }
         false
@@ -270,7 +278,7 @@ impl rs580::Memory for RKKeyboard {
                     return 0xFF;
                 }
             }
-            if let Some(RKKey {a, b, c}) = current_key {
+            if let Some(RKKey {a, b, ..}) = current_key {
                 if self.0.current_line.get() == a {
                     return b;
                 } else {
